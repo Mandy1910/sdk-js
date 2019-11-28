@@ -1,0 +1,41 @@
+name: Tests
+on: [push]
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+           node-version: '10.x'
+      - name: install dependencies
+        run: yarn
+      - name: build
+        run: yarn build:all
+      - name: run tests with coverage
+        run: npm run coverage
+        env:
+          TANKER_CI_CONFIG: ${{ secrets.TANKER_CI_CONFIG }}
+      - name: send coverage
+        run: yarn codecov
+
+  browserstack:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browsers: [ChromeWindows10, Chrome70Windows7, EdgeWindows10, FirefoxWindows10, ChomeOSX, FirefoxOSX, Android9, Android5, iOS12, Safari12Mojave]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+      - name: install dependencies
+        run: yarn
+      - name: run tests
+        run: yarn karma --browsers ${{ matrix.browsers }}
+        env:
+          TANKER_CI_CONFIG: ${{ secrets.TANKER_CI_CONFIG }}
+          BROWSER_STACK_USERNAME: ${{ secrets.BROWSER_STACK_USERNAME }}
+          BROWSER_STACK_ACCESS_KEY: ${{ secrets.BROWSER_STACK_ACCESS_KEY }}
+          TRAVIS_BUILD_NUMBER: ${{ env.GITHUB_SHA }}

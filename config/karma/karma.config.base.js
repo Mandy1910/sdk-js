@@ -66,6 +66,7 @@ module.exports = {
   browserStack: {
     project: 'sdk-js',
     timeout: 1800,
+    build: process.env.GITHUB_SHA,
   },
 
   hostname: 'bs-local.com',
